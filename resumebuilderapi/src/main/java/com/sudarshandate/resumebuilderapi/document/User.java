@@ -1,0 +1,35 @@
+package com.sudarshandate.resumebuilderapi.document;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.time.LocalDateTime;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Document(collation = "en")
+public class User {
+
+    private String id;
+    private String name;
+    private String email;
+    private String password;
+    private String profileImageUrl;
+    private String subscriptionPlan = "basic";
+    private boolean emailVerified = false;
+    private String verficationToken;
+    private LocalDateTime verficationExpires;
+
+    @CreatedDate
+    private LocalDateTime createdAt;
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
+
+}
