@@ -24,7 +24,7 @@ public class User {
     private String profileImageUrl;
     private String subscriptionPlan = "basic";
     private boolean emailVerified = false;
-    private String verficationToken;
+    private String verificationToken;
     private LocalDateTime verficationExpires;
 
     @CreatedDate

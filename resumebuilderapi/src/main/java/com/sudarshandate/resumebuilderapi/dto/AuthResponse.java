@@ -21,7 +21,7 @@ public class AuthResponse {
     private String profileImageUrl;
     private String subscriptionPlan;
     private Boolean emailVerified;
-    private String token;
+    private String verificationToken;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
