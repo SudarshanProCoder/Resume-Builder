@@ -8,6 +8,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,11 +24,15 @@ import java.util.ArrayList;
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    @Autowired
     public JwtUtil jwtUtil;
-    public  UserRepository userRepository;
+
+    @Autowired
+    public UserRepository userRepository;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
         String authToken = null;
         String userId = null;
@@ -35,23 +41,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             try {
                 userId = jwtUtil.getUserIdFromToken(authToken);
-            }catch (Exception e){
-                log.error("Token is not valid {}",e.getMessage());
+            } catch (Exception e) {
+                log.error("Token is not valid {}", e.getMessage());
             }
         }
 
-        if(userId == null && SecurityContextHolder.getContext().getAuthentication()==null){
-            try{
+        if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            try {
 
-                if(jwtUtil.validateToken(authToken) && !jwtUtil.isTokenExpired(authToken)){
-                    User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
+                if (jwtUtil.validateToken(authToken) && !jwtUtil.isTokenExpired(authToken)) {
+                    User user = userRepository.findById(userId)
+                            .orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
 
-                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
+                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                            user, null, new ArrayList<>());
                     authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                 }
-            }catch (Exception e){
-                log.error("Token is not valid {}",e.getMessage());
+            } catch (Exception e) {
+                log.error("Token is not valid {}", e.getMessage());
             }
         }
         filterChain.doFilter(request, response);
