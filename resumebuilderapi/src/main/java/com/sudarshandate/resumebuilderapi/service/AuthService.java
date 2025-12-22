@@ -61,7 +61,8 @@ public class AuthService {
                     + "style='display:inline-block; padding:12px 24px; background-color:#6366f1; color:#ffffff; text-decoration:none; border-radius:6px; font-weight:bold;'>"
                     + "Verify Email</a></p>"
                     + "<p style='font-size:14px; color:#555555; text-align:center;'>Or copy this link into your browser:</p>"
-                    + "<p style='font-size:14px; color:#555555; word-break:break-all; text-align:center;'>" + link + "</p>"
+                    + "<p style='font-size:14px; color:#555555; word-break:break-all; text-align:center;'>" + link
+                    + "</p>"
                     + "<p style='font-size:14px; color:#999999; text-align:center;'>This link expires in 24 hours.</p>"
                     + "<p style='font-size:14px; color:#555555; text-align:center;'>Thank you!</p>"
                     + "</div>"
@@ -101,7 +102,8 @@ public class AuthService {
 
     public void verifyEmail(String token) {
         log.info("Inside AuthService: verifyEmail() {}", token);
-        User user = userRepository.findByVerificationToken(token).orElseThrow(() -> new RuntimeException("Verification token not found"));
+        User user = userRepository.findByVerificationToken(token)
+                .orElseThrow(() -> new RuntimeException("Verification token not found"));
 
         if (user.getVerficationExpires() != null && user.getVerficationExpires().isBefore(LocalDateTime.now())) {
             throw new RuntimeException("Verification token expired");
@@ -113,15 +115,15 @@ public class AuthService {
         userRepository.save(user);
     }
 
-    public AuthResponse login(LoginRequest request){
+    public AuthResponse login(LoginRequest request) {
         User existingUser = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("Invalid email or password"));
 
-        if(!passwordEncoder.matches(request.getPassword(), existingUser.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), existingUser.getPassword())) {
             throw new UsernameNotFoundException("Invalid email or password");
         }
 
-        if(!existingUser.isEmailVerified()) {
+        if (!existingUser.isEmailVerified()) {
             throw new RuntimeException("Please verify your email");
         }
 
@@ -130,5 +132,28 @@ public class AuthService {
         AuthResponse response = toResponse(existingUser);
         response.setVerificationToken(token);
         return response;
+    }
+
+    public void resendVerification(String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Invalid email or password"));
+
+        if (user.isEmailVerified()) {
+            throw new RuntimeException("Email is already verified.");
+        }
+
+        user.setVerificationToken(UUID.randomUUID().toString());
+        user.setVerficationExpires(LocalDateTime.now().plusHours(24));
+
+        userRepository.save(user);
+
+        sendVerificationEmail(user);
+    }
+
+    public AuthResponse getProfile(Object principalObject) {
+
+        User exestingUser = (User) principalObject;
+        return toResponse(exestingUser);
     }
 }
