@@ -1,6 +1,5 @@
 package com.sudarshandate.resumebuilderapi.controller;
 
-import com.sudarshandate.resumebuilderapi.document.User;
 import com.sudarshandate.resumebuilderapi.dto.AuthResponse;
 import com.sudarshandate.resumebuilderapi.dto.LoginRequest;
 import com.sudarshandate.resumebuilderapi.dto.RegisterRequest;
