@@ -33,7 +33,7 @@ public class Resume {
 
     private Template template;
 
-    private ProfileInfo ProfileInfo;
+    private ProfileInfo profileInfo;
 
     private ContactInfo contactInfo;
 
